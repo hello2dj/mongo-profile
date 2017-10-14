@@ -28,32 +28,32 @@ const (
 )
 
 type AggProfileLog struct {
-	Ts int `bson:"ts"`
-	// Ds      string `bson:"ds"`
+	Ts      int     `bson:"ts"`
+	Ds      string  `bson:"ds"`
 	AvgTime float32 `bson:"avgTime"`
 }
 
 // var addEle = [1]bson.M{bson.M{"$ts": 28800000}}
 
-// var projToAdd8Hour = bson.M{
-// 	"$project": bson.M{
-// 		"ts": 1,
-// 		// "ts": bson.M{
-// 		// 	"$add": addEle,
-// 		// },
-// 		"millis": 1,
-// 	},
-// }
+var projToAdd8Hour = bson.M{
+	"$project": bson.M{
+		"ts": 1,
+		// "ts": bson.M{
+		// 	"$add": addEle,
+		// },
+		"millis": 1,
+	},
+}
 
 var projToGetDate = bson.M{
 	"$project": bson.M{
 		"ts": 1,
-		// "ds": bson.M{ // date string
-		// 	"$dateToString": bson.M{
-		// 		"format": "%Y-%m-%d",
-		// 		"date":   "$ts",
-		// 	},
-		// },
+		"ds": bson.M{ // date string
+			"$dateToString": bson.M{
+				"format": "%Y-%m-%d",
+				"date":   "$ts",
+			},
+		},
 		"millis": 1,
 	},
 }
@@ -67,7 +67,7 @@ func GetProfileListByType(t QueryType) *mgo.Iter {
 	case ByDay:
 		pipeline[1] = bson.M{"$group": bson.M{"_id": bson.M{
 			"ts": bson.M{"$dayOfMonth": "$ts"},
-			// "ds": "$ds",
+			"ds": "$ds",
 		},
 			"avgTime": bson.M{
 				"$avg": "$millis",
@@ -80,7 +80,7 @@ func GetProfileListByType(t QueryType) *mgo.Iter {
 	default:
 		// pipeline[1] = bson.M{"$group": bson.M{"_id": bson.M{"ts": bson.M{"$dayOfMonth": "$ts"}, "avgTime": bson.M{"$avg": "$millis"}}}}
 	}
-	pipeline[2] = bson.M{"$project": bson.M{"ts": "$_id.ts", "avgTime": 1}}
-	pipeline[3] = bson.M{"$project": bson.M{"_id": 0, "ts": 1, "avgTime": 1}}
+	pipeline[2] = bson.M{"$project": bson.M{"ts": "$_id.ts", "ds": "$_id.ds", "avgTime": 1}}
+	pipeline[3] = bson.M{"$project": bson.M{"_id": 0, "ts": 1, "ds": 1, "avgTime": 1}}
 	return db.DefaultDB.C("system.profile").Pipe(pipeline).Iter()
 }
