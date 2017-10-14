@@ -25,7 +25,7 @@ func main() {
 		if iter.Err() != nil {
 			println("error is ", iter.Err().Error())
 		}
-		println("hello2", item.AvgTime, item.Ts, item.Ds)
+		println("hello2", item.AvgTime, item.Ts)
 
 		c.JSON(200, gin.H{
 			"message": "pong",
