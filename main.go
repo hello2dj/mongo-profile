@@ -1,10 +1,8 @@
 package main
 
 import (
+	"mongo-profile/controller"
 	"mongo-profile/db"
-	"mongo-profile/model"
-
-	"gopkg.in/mgo.v2/bson"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,20 +14,6 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
-		iter := model.GetProfileListByType(model.ByDay)
-		var item model.AggProfileLog
-		db.DefaultDB.C("system.profile").Find(bson.M{}).Select(bson.M{"_id": 1, "ts": 1}).One(&item)
-
-		println("data", iter.Next(&item))
-		if iter.Err() != nil {
-			println("error is ", iter.Err().Error())
-		}
-		println("hello2", item.AvgTime, item.Ts)
-
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	r.GET("/", controller.GetProfileStats)
 	r.Run("localhost:20001")
 }
